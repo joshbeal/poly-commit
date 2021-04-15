@@ -334,7 +334,7 @@ pub struct PreparedVerifierKeyVar<E: PairingEngine, PG: PairingVar<E, E::Fq>> {
     pub prepared_beta_h: PG::G2PreparedVar,
     /// Used for the shift powers associated with different degree bounds.
     pub prepared_degree_bounds_and_shift_powers:
-        Option<Vec<(usize, FpVar<E2Fq<E>>, Vec<PG::G1Var>)>>,
+        Option<Vec<(usize, FpVar<E::Fq>, Vec<PG::G1Var>)>>,
     /// Indicate whether or not it is a constant allocation (which decides whether or not shift
     /// powers are precomputed).
     pub constant_allocation: bool,
@@ -962,6 +962,21 @@ where
     }
 }
 
+/// Helper struct for information about one member of a linear combination.
+#[derive(Derivative)]
+#[derivative(Clone(bound = "E: PairingEngine"))]
+pub struct LCItem<E, PG>
+where
+    E: PairingEngine,
+    PG: PairingVar<E, E::Fq>,
+    E::Fq: PrimeField,
+{
+    coeff: Option<NonNativeFieldVar<E::Fr, E::Fq>>,
+    degree_bound: Option<FpVar<E::Fq>>,
+    comm: PreparedCommitmentVar<E, PG>,
+    negate: bool,
+}
+
 /// Gadget for the `MarlinKZG10` polynomial commitment verifier.
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -998,12 +1013,7 @@ where
         >>::PreparedVerifierKeyVar,
         lc_info: &[(
             String,
-            Vec<(
-                Option<NonNativeFieldVar<E::Fr, E::Fq>>,
-                Option<FpVar<E::Fq>>,
-                PreparedCommitmentVar<E, PG>,
-                bool,
-            )>,
+            Vec<LCItem<E, PG>>,
         )],
         query_set: &QuerySetVar<E::Fr, E::Fq>,
         evaluations: &EvaluationsVar<E::Fr, E::Fq>,
@@ -1020,12 +1030,7 @@ where
             String,
             (
                 String,
-                Vec<(
-                    Option<NonNativeFieldVar<E::Fr, E::Fq>>,
-                    Option<FpVar<E::Fq>>,
-                    PreparedCommitmentVar<E, PG>,
-                    bool,
-                )>,
+                Vec<LCItem<E, PG>>,
             ),
         > = lc_info.iter().map(|c| (c.0.clone(), c.clone())).collect();
 
@@ -1044,12 +1049,7 @@ where
         let mut combined_evals = Vec::new();
         for (_, (point, labels)) in query_to_labels_map.into_iter() {
             let mut comms_to_combine = Vec::<
-                Vec<(
-                    Option<NonNativeFieldVar<E::Fr, E::Fq>>,
-                    Option<FpVar<E::Fq>>,
-                    PreparedCommitmentVar<E, PG>,
-                    bool,
-                )>,
+                Vec<LCItem<E, PG>>,
             >::new();
             let mut values_to_combine = Vec::new();
             for label in labels.into_iter() {
@@ -1079,7 +1079,8 @@ where
                 let challenge_bits = opening_challenges_bits[opening_challenges_counter].clone();
                 opening_challenges_counter += 1;
 
-                for (coeff, degree_bound, comm, negate) in commitment_lcs.iter() {
+                for lc_info in commitment_lcs.iter() {
+                    let LCItem::<E, PG> { coeff, degree_bound, comm, negate } = lc_info;
                     let PreparedCommitmentVar { shifted_comm, .. } = comm;
 
                     if coeff.is_none() {
@@ -1541,12 +1542,12 @@ where
                         LinearCombinationCoeffVar::Var(variable) => Some(variable.clone()),
                     };
 
-                    coeffs_and_comms.push((
-                        coeff.clone(),
-                        cur_comm.degree_bound.clone(),
-                        cur_comm.prepared_commitment.clone(),
+                    coeffs_and_comms.push( LCItem {
+                        coeff,
+                        degree_bound: cur_comm.degree_bound.clone(),
+                        comm:cur_comm.prepared_commitment.clone(),
                         negate,
-                    ));
+                    });
                 }
             }
 
