@@ -34,7 +34,7 @@ rayon = { version = "1", optional = true }
 derivative = { version = "2", features = [ "use_core" ] }
 
 # Dependencies for r1cs
-ark-crypto-primitives = { version = "^0.2.0", default-features = false, optional = true }
+ark-crypto-primitives = { git = "https://github.com/joshbeal/crypto-primitives", branch = "joshbeal/accumulation-experimental", default-features = false, features = [ "r1cs" ] }
 ark-nonnative-field = { git = "https://github.com/arkworks-rs/nonnative", default-features = false, optional = true, rev = "d57dd4f83f7363e6310526a0a2533e4fc310564b" }
 ark-relations = { version = "^0.2.0", default-features = false, optional = true }
 ark-r1cs-std = { version = "^0.2.0", default-features = false, optional = true }
