@@ -320,7 +320,8 @@ where
     }
 }
 
-/// Var for the verification key of the Marlin-KZG10 polynomial commitment scheme.
+/// High level variable representing the verification key of the `MarlinKZG10` polynomial commitment
+/// scheme, prepared for use in arithmetic.
 #[allow(clippy::type_complexity)]
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -332,10 +333,13 @@ pub struct PreparedVerifierKeyVar<E: PairingEngine, PG: PairingVar<E, E::Fq>> {
     /// Generator of G1, times first monomial.
     pub prepared_beta_h: PG::G2PreparedVar,
     /// Used for the shift powers associated with different degree bounds.
-    pub prepared_degree_bounds_and_shift_powers: Option<Vec<(usize, FpVar<E::Fq>, Vec<PG::G1Var>)>>,
-    /// Indicate whether or not it is a constant allocation (which decides whether or not shift powers are precomputed)
+    pub prepared_degree_bounds_and_shift_powers:
+        Option<Vec<(usize, FpVar<E2Fq<E>>, Vec<PG::G1Var>)>>,
+    /// Indicate whether or not it is a constant allocation (which decides whether or not shift
+    /// powers are precomputed).
     pub constant_allocation: bool,
-    /// If not a constant allocation, the original vk is attached (for computing the shift power series)
+    /// If not a constant allocation, the original vk is attached (for computing the shift power
+    /// series).
     pub origin_vk: Option<VerifierKeyVar<E, PG>>,
 }
 
@@ -525,7 +529,7 @@ where
     }
 }
 
-/// Var for an optionally hiding Marlin-KZG10 commitment.
+/// High level variable representing a commitment in the `MarlinKZG10` polynomial commitment scheme.
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
 pub struct CommitmentVar<E: PairingEngine, PG: PairingVar<E, E::Fq>> {
@@ -631,8 +635,8 @@ where
     }
 }
 
-/// Prepared gadget for an optionally hiding Marlin-KZG10 commitment.
-/// shifted_comm is not prepared, due to the specific use case.
+/// High level variable for a `MarlinKZG10` polynomial commitment, prepared for use in arirthmetic.
+/// (`shifted_comm` is not prepared, due to the specific use case.)
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
 pub struct PreparedCommitmentVar<E: PairingEngine, PG: PairingVar<E, E::Fq>> {
@@ -724,7 +728,8 @@ where
     }
 }
 
-/// Var for a Marlin-KZG10 commitment, with a string label and degree bound.
+/// High level variable for a `MarlinKZG10` polynomial commitment, along with a string label and a
+/// degree bound.
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
 pub struct LabeledCommitmentVar<E: PairingEngine, PG: PairingVar<E, E::Fq>> {
@@ -785,7 +790,8 @@ where
     }
 }
 
-/// Var for a Marlin-KZG10 commitment, with a string label and degree bound.
+/// High level variable for a `MarlinKZG10` polynomial commitment, along with a string label and a
+/// degree bound, prepared for use in arithmetic.
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
 pub struct PreparedLabeledCommitmentVar<E: PairingEngine, PG: PairingVar<E, E::Fq>> {
@@ -815,7 +821,7 @@ where
     }
 }
 
-/// Var for a Marlin-KZG10 proof.
+/// High level variable for a `MarlinKZG10` opening proof.
 #[allow(clippy::type_complexity)]
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -880,7 +886,8 @@ where
     }
 }
 
-/// An allocated version of `BatchLCProof`.
+/// High level variable for a batched `MarlinKZG10` proof, for the opening of a linear combination
+/// of polynomials.
 #[allow(clippy::type_complexity)]
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -955,7 +962,7 @@ where
     }
 }
 
-/// Var for the Marlin-KZG10 polynomial commitment verifier.
+/// Gadget for the `MarlinKZG10` polynomial commitment verifier.
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
 pub struct MarlinKZG10Gadget<E, P, PG>
